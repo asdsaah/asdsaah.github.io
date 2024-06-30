@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Developer Portfolio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        .about {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 200px;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .about h2 {
+            font-size: 1em;
+            font-weight: bold;
+        }
+        .projects, .code-snippets {
+            margin: 20px 0;
+        }
+        .projects h2, .code-snippets h2 {
+            margin-bottom: 5px;
+        }
+        .project-item, .code-snippet-item {
+            margin-bottom: 10px;
+        }
+        .project-date, .snippet-date {
+            font-size: 0.9em;
+            color: grey;
+            font-weight: bold;
+        }
+        .arrow {
+            margin: 0 10px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            z-index: 10;
+        }
+        .popup h3 {
+            margin-top: 0;
+        }
+        .popup .hide-btn, .popup .google-btn {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    <section class="container">
+        <div class="about">
+            <h2>About Me</h2>
+            <p>Brief description about yourself and your work.</p>
+        </div>
+        <div class="projects">
+            <h2>Projects</h2>
+            <div class="project-item">
+                <span class="project-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 1">Project 1</a>
+            </div>
+            <div class="project-item">
+                <span class="project-date">2023-12-15</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 2">Project 2</a>
+            </div>
+            <div class="project-item">
+                <span class="project-date">2023-11-30</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 3">Project 3</a>
+            </div>
+        </div>
+        <div class="code-snippets">
+            <h2>Code Snippets</h2>
+            <div class="code-snippet-item">
+                <span class="snippet-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="snippet-link" data-info="Details about Snippet 1">Snippet 1</a>
+            </div>
+            <div class="code-snippet-item">
+                <span class="snippet-date">2023-12-15</span><span class="arrow">→</span><a href="#" class="snippet-link" data-info="Details about Snippet 2">Snippet 2</a>
+            </div>
+            <div class="code-snippet-item">
+                <span class="snippet-date">2023-11-30</span><span class="arrow">→</span><a href="#" class="snippet-link" data-info="Details about Snippet 3">Snippet 3</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="popup" id="popup">
+        <h3 id="popup-title">Popup Title</h3>
+        <p id="popup-content">Popup Content</p>
+        <button class="hide-btn" id="hide-btn">Hide</button>
+        <button class="google-btn" onclick="window.open('https://www.google.com', '_blank')">Google</button>
+    </div>
+
+    <footer>
+        <p>© 2024 Your Name. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const projectLinks = document.querySelectorAll('.project-link');
+            const snippetLinks = document.querySelectorAll('.snippet-link');
+            const popup = document.getElementById('popup');
+            const popupTitle = document.getElementById('popup-title');
+            const popupContent = document.getElementById('popup-content');
+            const overlay = document.getElementById('overlay');
+            const hideBtn = document.getElementById('hide-btn');
+
+            function hidePopup() {
+                popup.style.display = 'none';
+                overlay.style.display = 'none';
+            }
+
+            function showPopup(title, content) {
+                popupTitle.innerText = title;
+                popupContent.innerText = content;
+                popup.style.display = 'block';
+                overlay.style.display = 'block';
+            }
+
+            projectLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const title = link.innerText;
+                    const content = link.getAttribute('data-info');
+                    showPopup(title, content);
+                });
+            });
+
+            snippetLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const title = link.innerText;
+                    const content = link.getAttribute('data-info');
+                    showPopup(title, content);
+                });
+            });
+
+            hideBtn.addEventListener('click', hidePopup);
+            overlay.addEventListener('click', hidePopup);
+        });
+    </script>
+</body>
+</html>
