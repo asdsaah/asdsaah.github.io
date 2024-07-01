@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Name - Developer Portfolio</title>
+    <title>Andrew Saah - Webpage</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,13 +24,14 @@
             left: 20px;
             width: 200px;
             background: #fff;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
             padding: 10px;
             text-align: left;
         }
-        .about h2 {
-            font-size: 1em;
+        .about h1 {
+            font-size: 2em;
             font-weight: bold;
+            text-align: center;
         }
         .projects, .code-snippets {
             margin: 20px 0;
@@ -42,9 +43,10 @@
             margin-bottom: 10px;
         }
         .project-date, .snippet-date {
-            font-size: 0.9em;
-            color: grey;
-            font-weight: bold;
+            font-size: 0.85em;
+            color: #999999;
+            font-weight: lighter;
+            font-family: monospace;
         }
         .arrow {
             margin: 0 10px;
@@ -55,9 +57,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #fff;
+            background: #f4f4f4;
             padding: 20px;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
             z-index: 10;
@@ -66,12 +68,10 @@
             margin-top: 0;
         }
         .popup .hide-btn, .popup .google-btn {
-            background: #333;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            margin-right: 10px;
+            background: #fff;
+            color: goldenrod;
+            cursor: grab;
+            border: 2px solid #ddd;
         }
         .overlay {
             display: none;
@@ -83,14 +83,31 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 5;
         }
+        .footer p {
+            font-size: 0.8em;
+            color: goldenrod;
+            font-weight: bolder;
+        }
     </style>
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
     <section class="container">
         <div class="about">
-            <h2>Andrew Saah</h2>
+            <h1>Andrew Saah</h1>
             <p>Brief description about yourself and your work.</p>
+        </div>
+        <div class="projects">
+            <h2>Reaserch</h2>
+            <div class="project-item">
+                <span class="project-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 1"> Leveraging Terrestrial Laser Scanning Systems for Hemispherical Photography in Forest Canopy Analysis.</a>
+            </div>
+            <div class="project-item">
+                <span class="project-date">2023-12-15</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 2">Developing a repeatable workflow for monitoring sub-meter landscape change in Muir Woods National Monument.</a>
+            </div>
+            <div class="project-item">
+                <span class="project-date">2023-11-30</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 3">Coming Soon, NASA DEVELOP</a>
+            </div>
         </div>
         <div class="projects">
             <h2>Projects</h2>
@@ -116,6 +133,18 @@
                 <span class="snippet-date">2023-11-30</span><span class="arrow">→</span><a href="#" class="snippet-link" data-info="Details about Snippet 3">Snippet 3</a>
             </div>
         </div>
+        <div class="projects">
+            <h2>Maps</h2>
+            <div class="project-item">
+                <span class="project-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 1">Project 1</a>
+            </div>
+            <div class="project-item">
+                <span class="project-date">2023-12-15</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 2">Project 2</a>
+            </div>
+            <div class="project-item">
+                <span class="project-date">2023-11-30</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 3">Project 3</a>
+            </div>
+        </div>
     </section>
 
     <div class="popup" id="popup">
@@ -125,9 +154,8 @@
         <button class="google-btn" onclick="window.open('https://www.google.com', '_blank')">Google</button>
     </div>
 
-    <footer>
-        <p>© 2024 Andrew Saah.</p>
-        <p>San Francisco, California</p>
+    <footer class="footer" id="footer">
+        <p>2024, San Francisco, California</p>
     </footer>
 
     <script>
