@@ -23,7 +23,7 @@
             top: 40px;
             left: 50%;
             transform: translateX(-450px); 
-            margin-left: 100px; 
+            margin-left: 10px; 
             width: 200px;
             background: #fff;
             border: 2px solid #ddd;
@@ -31,43 +31,69 @@
             padding: 10px; 
         }
         .bordered-image {
-            border: 2px solid #ddd; 
             border-radius: 5px; 
         }
-        .about h1 {
-            font-size: 2em;
-            font-weight: bold;
-            text-align: left;
+        .bio-header {
+            text-align: left; /* Align the text to the left */
+            margin: 0; /* Reset any default margins */
+            padding: 0; /* Reset any default padding */
+        }
+        .bio-body {
+            text-align: left; /* Align the text to the left */
+            margin: opx; /* Reset any default margins */
+            padding-top: 3px; /* Reset any default padding */
+            font-size: 0.85em;
+            color: #999999;
+            font-weight: lighter;
+            font-family: monospace;
         }
         .projects_list {
-            margin: 20px 0;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 10px auto; /* Center the box horizontally */
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%
+            width: 400px; /* Set a fixed width for the box */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            position: relative; /* Use relative positioning */
+            top: 30px; /* Move the box down by 20 pixels */
+            overflow: hidden;
         }
         .projects_header {
-            margin-bottom: 5px;
-            text-align: justify;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 0px;
+            margin-top: 0px;
+            padding-top: 2px;
+            padding-left: 20px;
+            width: 100%;
         }
         .project-item {
-            position: relative;
-            left: -80px;;
-            margin-bottom: 5px;
-            display: inline-block;
-            text-align: center;
-            width: 0;
-            white-space: nowrap;;
+            text-align: left;
+            padding-left: 20px;
+            display: block; /* Change to block for full-width alignment */
+            width: 100%; /* Set to 100% to take full width */
+            white-space: normal; /* Allow text to wrap */
+            overflow: hidden;
         }
         .project-date {
             font-size: 0.85em;
             color: #999999;
             font-weight: lighter;
             font-family: monospace;
-            text-align: center;
         }
         .arrow {
             margin: 0 10px;
+            color: goldenrod;
+        }
+        .project-link {
+            font-size: 0.85em;
+            color: #35c2e6;
+            font-weight: lighter;
+            font-family: monospace;
         }
         .popup {
             display: none;
@@ -115,22 +141,23 @@
     <section class="container">
         <div class="about_container">
             <img src="https://media.licdn.com/dms/image/D5603AQG2bi3ZxtalFA/profile-displayphoto-shrink_200_200/0/1669422945300?e=1725494400&v=beta&t=ZZs8Fgukcm4lFJuSCVuFcyXB_9s_Gu4d1YPcq8U2syk" alt="Dinosaur or maybe Andrew" class="bordered-image"/>
-            <span class="bio">Andrew Saah</span>
+            <h2 class="bio-header">Andrew Saah</h2>
+            <div class="bio-body"><u><b>Bio:</b></u> My interests and work experience focus on applying Remote Sensing, LiDAR, and Geospatial Information Systems to natural resource management, climate change forecasting and resilience, and ecological conservation, but I am always interested in environmentally related issues.</div>
+            <div class="bio-body"><u><b>Education:</b></u> B.S Enviromental Science @ Univerity of San Francisco (2025 grad)</div>
+            <div class="bio-body"><u><b>C.V:</b></u> <a href="#" class="project-link" data-info="Details about Project 3">March 2024(depreciated)</a></div>
         </div>
         <div class="projects_list">
-            <h2 class="project-item">Research</h2>
+            <h2 class="projects_header">Research</h2>
             <div class="project-item">
                 <span class="project-date">2023-11-30</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 3">NASA DEVELOP, Coming Soon...</a>
             </div>
             <div class="project-item">
-                <span class="project-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 1"> Leveraging Terrestrial Laser Scanning Systems for Hemispherical Photography in Forest Canopy Analysis.</a>
+                <span class="project-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 1">Automating Forest Gap Fraction with TLS</a>
             </div>
             <div class="project-item">
-                <span class="project-date">2023-12-15</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 2">Developing a repeatable workflow for monitoring sub-meter landscape change in Muir Woods National Monument.</a>
+                <span class="project-date">2023-12-15</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 2">Detecting sub-meter creek change with TLS</a>
             </div>
-        </div>
-        <div class="projects_list">
-            <h2 class="project-item">Projects</h2>
+            <h2 class="projects_header">Projects</h2>
             <div class="project-item">
                 <span class="project-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 1">Project 1</a>
             </div>
@@ -140,21 +167,17 @@
             <div class="project-item">
                 <span class="project-date">2023-11-30</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 3">Project 3</a>
             </div>
-        </div>
-        <div class="projects_list">
-            <h2 class="project-item">Code Snippets</h2>
+            <h2 class="projects_header">Code Snippets</h2>
             <div class="project-item">
-                <span class="project-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="snippet-link" data-info="Details about Snippet 1">Snippet 1</a>
+                <span class="project-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Snippet 1">Snippet 1</a>
             </div>
             <div class="project-item">
-                <span class="project-date">2023-12-15</span><span class="arrow">→</span><a href="#" class="snippet-link" data-info="Details about Snippet 2">Snippet 2</a>
+                <span class="project-date">2023-12-15</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Snippet 2">Snippetnnnnnn</a>
             </div>
             <div class="project-item">
-                <span class="project-date">2023-11-30</span><span class="arrow">→</span><a href="#" class="snippet-link" data-info="Details about Snippet 3">Snippet 3</a>
+                <span class="project-date">2023-11-30</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Snippet 3">Snippet 3</a>
             </div>
-        </div>
-        <div class="projects_list">
-            <h2 class="project-item">Maps</h2>
+            <h2 class="projects_header">Maps</h2>
             <div class="project-item">
                 <span class="project-date">2024-01-01</span><span class="arrow">→</span><a href="#" class="project-link" data-info="Details about Project 1">Project 1</a>
             </div>
