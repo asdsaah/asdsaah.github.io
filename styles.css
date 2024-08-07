@@ -121,7 +121,8 @@ body {
 }
 .linked-page-bordered-image {
     border-radius: 5px;
-    margin: 20px; 
+    margin: 20px;
+    border: 2px solid #ddd;
 }
 .linked-page-header {
     display: flex;
