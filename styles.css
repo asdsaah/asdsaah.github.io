@@ -90,49 +90,46 @@ body {
     font-weight: lighter;
     font-family: monospace;
 }
-.popup {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #f4f4f4;
-    padding: 20px;
-    border: 2px solid #ddd;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    z-index: 10;
-}
-.popup h3 {
-    margin-top: 0;
-}
-.popup .hide-btn, .popup .google-btn {
-    background: #fff;
-    color: goldenrod;
-    cursor: grab;
-    border: 2px solid #ddd;
-    border-radius: 5px;
-}
-.overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 5;
-}
 .footer {
     font-size: 0.7em;
     color: goldenrod;
     font-weight: bolder;
     margin-top: -10px;
 }
-.home-btn {
+.linked-page {
     background: #fff;
-    color: goldenrod;
-    cursor: grab;
     border: 2px solid #ddd;
     border-radius: 5px;
+    margin: 40px auto 10px; /* Center the box horizontally */
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    width: 600px; /* Set a fixed width for the box */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    position: relative; /* Use relative positioning */
+    overflow: hidden;
+    padding: 15px;
+}
+.linked-page-body {
+    text-align: justify; /* Align the text to the left */
+    margin: 5px; /* Reset any default margins */
+    padding-top: 3px; /* Reset any default padding */
+    font-size: 0.85em;
+    color: #999999;
+    font-weight: lighter;
+    font-family: monospace;
+}
+.linked-page-bordered-image {
+    border-radius: 5px;
+    margin: 20px; 
+}
+.linked-page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    padding-top: 2px;
+    padding-left: 0x;
+    width: 100%;
 }
