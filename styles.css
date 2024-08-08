@@ -30,6 +30,7 @@ body {
     border-radius: 5px; 
 }
 .bio-header {
+    color: #525151;
     text-align: left; /* Align the text to the left */
     margin: 0; /* Reset any default margins */
     padding: 0; /* Reset any default padding */
@@ -58,6 +59,7 @@ body {
 }
 .projects_header {
     display: flex;
+    color: #525151;
     flex-direction: column;
     align-items: flex-start;
     margin-bottom: 0px;
@@ -121,11 +123,13 @@ body {
 }
 .linked-page-bordered-image {
     border-radius: 5px;
-    margin: 20px;
+    margin: 5px;
+    margin-left: 0px;
     border: 2px solid #ddd;
 }
 .linked-page-header {
     display: flex;
+    color: #525151;
     flex-direction: column;
     align-items: flex-start;
     margin-bottom: 0px;
