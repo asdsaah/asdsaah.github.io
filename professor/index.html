@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Mark Ashton - Office Hours</title>
+    <link rel="stylesheet" href="./styles.css">
+    
+    <style>
+        /* Specific overrides to make the chat behave within your .linked-page-body */
+        .chat-window {
+            height: 450px;
+            overflow-y: auto;
+            border: 2px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+        }
+        .msg {
+            font-size: 0.85em;
+            font-family: monospace;
+            line-height: 1.5;
+        }
+        .msg.user { color: #525151; }
+        .msg.prof { color: #35c2e6; } /* Your signature blue */
+        
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.85em;
+            outline: none;
+        }
+        #user-input:focus { border-color: #35c2e6; }
+        
+        #send-btn {
+            background: #fff;
+            border: 2px solid #ddd;
+            color: #35c2e6;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-family: monospace;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        #send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        #status {
+            font-size: 0.7em;
+            color: goldenrod;
+            text-align: right;
+            font-family: monospace;
+            margin-bottom: 4px;
+        }
+        .typing { color: #999999; font-style: italic; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <section>
+        <div class="linked-page">
+            <h2 class="linked-page-header">Digital Office Hours</h2>
+            <div id="status">initializing...</div>
+            
+            <div class="linked-page-body">
+                <div class="chat-window" id="chat">
+                    <div class="msg prof"><strong>Professor:</strong> what do you want. office hours are starting.</div>
+                </div>
+                
+                <div class="input-area">
+                    <input type="text" id="user-input" placeholder="ask a question..." autocomplete="off" disabled>
+                    <button id="send-btn" onclick="send()" disabled>send</button>
+                </div>
+            </div>
+            
+            <a href="../index.html" class="project-link">Back to Main</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>2024, San Francisco, California</p>
+    </footer>
+
+    <script type="module">
+        const MODEL_BASE = "./model";
+        const CONFIG = {
+            vocab_size: 4096, max_seq_len: 128, d_model: 384,
+            n_layers: 6, n_heads: 6, ffn_hidden: 768,
+            pad_id: 0, bos_id: 1, eos_id: 2,
+        };
+        const GEN = { temperature: 0.3, top_k: 50, max_tokens: 32 };
+
+        let session = null;
+        let tokenizer = null;
+
+        import("https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.min.mjs").then(async (ort) => {
+            window.ort = ort;
+            ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/";
+            await load(ort);
+        });
+
+        async function load(ort) {
+            const status = document.getElementById("status");
+            try {
+                const tokResp = await fetch(`${MODEL_BASE}/tokenizer.json`);
+                tokenizer = buildTokenizer(await tokResp.json());
+                
+                const modelResp = await fetch(`${MODEL_BASE}/model.onnx`);
+                session = await ort.InferenceSession.create(await modelResp.arrayBuffer(), { executionProviders: ["wasm"] });
+                
+                status.textContent = "ready.";
+                document.getElementById("user-input").disabled = false;
+                document.getElementById("send-btn").disabled = false;
+            } catch (e) {
+                status.textContent = "error loading model.";
+                console.error(e);
+            }
+        }
+
+        async function send() {
+            const input = document.getElementById("user-input");
+            const text = input.value.trim().toLowerCase();
+            if (!text || !session) return;
+
+            input.value = "";
+            addMessage("user", text);
+            
+            const prompt = `<|im_start|>user\n${text}<|im_end|>\n<|im_start|>assistant\n`;
+            const inputIds = tokenizer.encode(prompt);
+            const outputIds = await generate(inputIds);
+            
+            let reply = tokenizer.decode(outputIds).trim();
+            if (reply.includes("<|im_end|>")) reply = reply.split("<|im_end|>")[0];
+            if (reply.includes("<|im_start|>")) reply = reply.split("<|im_start|>")[0];
+            
+            addMessage("prof", reply || "...");
+        }
+        window.send = send;
+
+        function addMessage(role, text) {
+            const chat = document.getElementById("chat");
+            const div = document.createElement("div");
+            div.className = `msg ${role}`;
+            div.innerHTML = `<strong>${role === 'user' ? 'You' : 'Professor'}:</strong> ${text}`;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        async function generate(inputIds) {
+            let ids = [...inputIds];
+            for (let i = 0; i < GEN.max_tokens; i++) {
+                const seq = ids.slice(-CONFIG.max_seq_len);
+                const tensor = new ort.Tensor("int64", BigInt64Array.from(seq.map(BigInt)), [1, seq.length]);
+                const out = await session.run({ input_ids: tensor });
+                const logits = out.logits.data;
+                const offset = (seq.length - 1) * 4096;
+                
+                const lastLogits = new Float32Array(4096);
+                for (let v = 0; v < 4096; v++) {
+                    lastLogits[v] = logits[offset + v] / GEN.temperature;
+                }
+                
+                const sorted = [...lastLogits].sort((a,b) => b-a);
+                const cutoff = sorted[GEN.top_k - 1];
+                let sumExp = 0;
+                const probs = new Float32Array(4096);
+                for(let v=0; v<4096; v++) {
+                    probs[v] = lastLogits[v] >= cutoff ? Math.exp(lastLogits[v]) : 0;
+                    sumExp += probs[v];
+                }
+                
+                let r = Math.random() * sumExp, acc = 0, nextId = 0;
+                for(let v=0; v<4096; v++) {
+                    acc += probs[v];
+                    if (acc >= r) { nextId = v; break; }
+                }
+                
+                ids.push(nextId);
+                if (nextId === CONFIG.eos_id) break;
+            }
+            return ids.slice(inputIds.length);
+        }
+
+        // FULL BYTE-LEVEL BPE TOKENIZER PORT
+        function buildTokenizer(json) {
+            const vocab = json.model.vocab;
+            const merges = json.model.merges;
+            const added = {};
+            for (const t of json.added_tokens) added[t.content] = t.id;
+            const id2token = Object.fromEntries(Object.entries(vocab).map(([k,v]) => [v,k]));
+            for (const [tok, id] of Object.entries(added)) id2token[id] = tok;
+
+            const byte2char = {};
+            const char2byte = {};
+            const ranges = [[33, 126], [161, 172], [174, 255]];
+            const direct = new Set();
+            for (const [lo, hi] of ranges) for (let b = lo; b <= hi; b++) direct.add(b);
+            let n = 0;
+            for (let b = 0; b < 256; b++) {
+                if (direct.has(b)) byte2char[b] = String.fromCharCode(b);
+                else { byte2char[b] = String.fromCharCode(256 + n); n++; }
+            }
+            for (const [b, c] of Object.entries(byte2char)) char2byte[c] = parseInt(b);
+
+            const mergeRank = Object.fromEntries(merges.map((m, i) => [Array.isArray(m) ? m.join(" ") : m, i]));
+
+            function bpe(word) {
+                if (word.length <= 1) return word;
+                let pieces = [...word];
+                while (pieces.length > 1) {
+                    let bestRank = Infinity, bestIdx = -1;
+                    for (let i = 0; i < pieces.length - 1; i++) {
+                        const pair = pieces[i] + " " + pieces[i + 1];
+                        const rank = mergeRank[pair];
+                        if (rank !== undefined && rank < bestRank) { bestRank = rank; bestIdx = i; }
+                    }
+                    if (bestIdx === -1) break;
+                    pieces.splice(bestIdx, 2, pieces[bestIdx] + pieces[bestIdx + 1]);
+                }
+                return pieces;
+            }
+
+            const PAT = /'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+/gu;
+
+            return {
+                encode: (text) => {
+                    const specialPattern = Object.keys(added).map(s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+                    const specialRe = new RegExp(`(${specialPattern})`);
+                    const segments = text.split(specialRe);
+                    const ids = [];
+                    for (const seg of segments) {
+                        if (added[seg] !== undefined) ids.push(added[seg]);
+                        else if (seg) {
+                            const words = seg.match(PAT) || [seg];
+                            for (const word of words) {
+                                const bytes = new TextEncoder().encode(word);
+                                const tokens = bpe(Array.from(bytes).map(b => byte2char[b]));
+                                tokens.forEach(tok => { if (vocab[tok] !== undefined) ids.push(vocab[tok]); });
+                            }
+                        }
+                    }
+                    return ids;
+                },
+                decode: (ids) => {
+                    const parts = ids.map(id => id2token[id] || "").filter(t => added[t] === undefined);
+                    const bytes = Uint8Array.from([...parts.join("")].map(c => char2byte[c] || c.charCodeAt(0)));
+                    return new TextDecoder().decode(bytes).replace(/Ġ/g, " ");
+                }
+            };
+        }
+
+        document.getElementById("user-input").addEventListener("keypress", (e) => { if(e.key === "Enter") send(); });
+    </script>
+</body>
+</html>
