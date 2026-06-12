@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andrew Saah - Webpage</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <section>
+        <div class="linked-page">
+            <h2 class="linked-page-header">Raster File Size Calculator</h2>
+            
+            <div class="linked-page-body">
+                <b><u>Description:</u></b> Use this tool to estimate the size of a raster before you create it, just give it a study area, resolution, and cell value type. Web based verion of a <a href="https://github.com/asdsaah/RasterFileSizeCalc">CLI tool (Link)</a> I also developed.
+                <br><br>
+                <b><u>Instructions:</u></b> Input your study area size in terms of squared kilometers, area of pixel, and pixel data type.
+                <br><br>
+                <b><u>Citation:</u></b> Saah, A. (2026). <i>Raster File Size Calculator</i> [Web Application]. Retrieved from https://github.com/asdsaah/RasterFileSizeCalc
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 20px 0; padding: 15px; border: 1px dashed #ddd; border-radius: 5px; background: #fafafa;">
+                    
+                    <div style="flex: 1 1 150px;">
+                        <b>Area -> Abbreviation</b><br>
+                        Acre -> acre<br>
+                        Hectare -> ha<br>
+                        Square Meter -> sqm<br>
+                        Square Kilometer -> sqkm
+                    </div>
+                    
+                    <div style="flex: 2 1 250px;">
+                        <b>Data Type -> Bytes -> Range</b><br>
+                        byte -> 1 -> 0 to 255<br>
+                        int8 -> 1 -> -128 to 127<br>
+                        int16 -> 2 -> -32768 to 32767<br>
+                        uint16 -> 2 -> 0 to 65535<br>
+                        uint32 -> 4 -> 0 to 4294967295<br>
+                        int32 -> 4 -> -2147483648 to 2147483647<br>
+                        float32 -> 4 -> -3.40282e+38 to 3.40282e+38<br>
+                        float64 -> 8 -> -1.79769e+308 to 1.79769e+308<br>
+                        cint16 -> 4 -> -32768 to 32767 (per comp)<br>
+                        cint32 -> 8 -> -2147483648 to 2147483647 (per comp)<br>
+                        cfloat32 -> 8 -> -3.402e+38 to 3.402e+38 (per comp)<br>
+                        cfloat64 -> 16 -> -1.79e+308 to 1.79e+308 (per comp)
+                    </div>
+                </div>
+
+                <b><u>Example Inputs:</u></b><br>
+                Landsat 8/9: <i>Area:</i> 35000 | <i>Units:</i> sqkm | <i>Pixel Res (m):</i> 30 | <i>Type:</i> int16 | <i>Bands:</i> 7<br>
+                Sentinel-2: <i>Area:</i> 10000 | <i>Units:</i> sqkm | <i>Pixel Res (m):</i> 10 | <i>Type:</i> uint16 | <i>Bands:</i> 13<br>
+                NAIP: <i>Area:</i> 1000 | <i>Units:</i> sqkm | <i>Pixel Res (m):</i> 1 | <i>Type:</i> byte | <i>Bands:</i> 4<br>
+                Planet SkySat: <i>Area:</i> 400 | <i>Units:</i> sqkm | <i>Pixel Res (m):</i> 0.5 | <i>Type:</i> uint16 | <i>Bands:</i> 4<br>
+                
+                <br>
+                
+                <form id="raster-calc-form" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Study Area Size:
+                        <input type="number" id="calc-area" step="any" required style="font-family: monospace; color: #525151; border: 1px solid #ddd; border-radius: 4px; padding: 5px; width: 45%;">
+                    </label>
+                    
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Area Units:
+                        <select id="calc-units" style="font-family: monospace; color: #525151; border: 1px solid #ddd; border-radius: 4px; padding: 5px; width: 47%;">
+                            <option value="sqkm">sqkm</option>
+                            <option value="ha">ha</option>
+                            <option value="acre">acre</option>
+                            <option value="sqm">sqm</option>
+                        </select>
+                    </label>
+                    
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Pixel Resolution (m):
+                        <input type="number" id="calc-pixel" step="any" required style="font-family: monospace; color: #525151; border: 1px solid #ddd; border-radius: 4px; padding: 5px; width: 45%;">
+                    </label>
+                    
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Data Type:
+                        <select id="calc-dtype" style="font-family: monospace; color: #525151; border: 1px solid #ddd; border-radius: 4px; padding: 5px; width: 47%;">
+                            <option value="byte">byte</option>
+                            <option value="int8">int8</option>
+                            <option value="int16">int16</option>
+                            <option value="uint16">uint16</option>
+                            <option value="uint32">uint32</option>
+                            <option value="int32">int32</option>
+                            <option value="float32">float32</option>
+                            <option value="float64">float64</option>
+                            <option value="cint16">cint16</option>
+                            <option value="cint32">cint32</option>
+                            <option value="cfloat32">cfloat32</option>
+                            <option value="cfloat64">cfloat64</option>
+                        </select>
+                    </label>
+                    
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Number of Bands:
+                        <input type="number" id="calc-bands" value="1" min="1" required style="font-family: monospace; color: #525151; border: 1px solid #ddd; border-radius: 4px; padding: 5px; width: 45%;">
+                    </label>
+                    
+                    <button type="button" onclick="calculateRasterSize()" style="margin-top: 15px; font-family: monospace; font-size: 1em; color: #35c2e6; background: transparent; border: 1px solid #35c2e6; border-radius: 4px; padding: 8px; cursor: pointer; transition: background 0.2s;">
+                        Calculate File Size
+                    </button>
+                </form>
+
+                <div id="calc-results" style="margin-top: 15px; display: none; padding: 10px; border: 1px solid #ddd; background: #fafafa; border-radius: 3px;"></div>
+            </div>
+            <br>
+            <a href="index.html" class="project-link"> Back </a>
+        </div>
+    </section>
+
+    <footer class="footer" id="footer">
+        <p>2024, San Francisco, California</p>
+    </footer>
+
+    <script>
+        function calculateRasterSize() {
+            const area = parseFloat(document.getElementById('calc-area').value);
+            const units = document.getElementById('calc-units').value;
+            const pixel = parseFloat(document.getElementById('calc-pixel').value);
+            const dtype = document.getElementById('calc-dtype').value;
+            const bands = parseInt(document.getElementById('calc-bands').value);
+            const resultsDiv = document.getElementById('calc-results');
+
+            if (isNaN(area) || area <= 0 || isNaN(pixel) || pixel <= 0 || isNaN(bands) || bands <= 0) {
+                resultsDiv.style.display = "block";
+                resultsDiv.innerHTML = "<b style='color: #e63535;'>Error:</b> Area, pixel size, and bands must be greater than zero.";
+                return;
+            }
+
+            let scaleFactor = 1;
+            let unitName = "Meter";
+            if (units === "acre") { scaleFactor = 4046.86; unitName = "Acre"; }
+            else if (units === "ha") { scaleFactor = 10000; unitName = "Hectare"; }
+            else if (units === "sqkm") { scaleFactor = 1000000; unitName = "Kilometer"; }
+
+            let bytesPerPixel = 1; 
+            if (["int16", "uint16"].includes(dtype)) bytesPerPixel = 2;
+            else if (["uint32", "int32", "float32", "cint16"].includes(dtype)) bytesPerPixel = 4;
+            else if (["float64", "cint32", "cfloat32"].includes(dtype)) bytesPerPixel = 8;
+            else if (dtype === "cfloat64") bytesPerPixel = 16;
+
+            const studyAreaMsq = area * scaleFactor;
+            const cellSizeArea = pixel * pixel;
+            const numberOfPixels = Math.floor(studyAreaMsq / cellSizeArea);
+            const totalBytes = bytesPerPixel * numberOfPixels * bands;
+
+            const totalMb = totalBytes / 1048576;
+            const totalGb = totalBytes / 1073741824;
+
+            resultsDiv.style.display = "block";
+            resultsDiv.innerHTML = `
+                <b>Number of pixels:</b> ${numberOfPixels.toLocaleString()}<br>
+                <b>Study area size:</b> ${area} Square ${unitName}s<br>
+                <b>Pixel resolution:</b> ${cellSizeArea} m²<br>
+                <b>Chosen data type:</b> ${dtype}<br>
+                <hr style="border: 0; border-top: 1px dashed #ddd; margin: 8px 0;">
+                <b>Total size:</b> ${totalBytes.toLocaleString()} bytes<br>
+                <b>${totalMb.toFixed(2)} MB | ${totalGb.toFixed(3)} GB</b>
+            `;
+        }
+    </script>
+</body>
+</html>
