@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krafft–Douthwaite Index Calculator</title>
+    <style>
+        /* Base styling follows the supplied styles.css and raster calculator page. */
+        :root {
+            --ink: #525151;
+            --muted: #999999;
+            --line: #dddddd;
+            --paper: #ffffff;
+            --wash: #fafafa;
+            --page: #f4f4f4;
+            --cyan: #35c2e6;
+            --gold: goldenrod;
+            --error: #e63535;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background: var(--page);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .linked-page {
+            background: var(--paper);
+            border: 2px solid var(--line);
+            border-radius: 5px;
+            margin: 40px auto 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: min(600px, calc(100% - 24px));
+            position: relative;
+            overflow: hidden;
+            padding: 15px;
+        }
+
+        .linked-page-header {
+            display: flex;
+            color: var(--ink);
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 0;
+            padding-top: 2px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .linked-page-body {
+            text-align: justify;
+            margin: 5px;
+            padding-top: 3px;
+            font-size: 0.85em;
+            color: var(--muted);
+            font-weight: lighter;
+            font-family: monospace;
+            width: calc(100% - 10px);
+        }
+
+        .footer {
+            font-size: 0.7em;
+            color: var(--gold);
+            font-weight: bolder;
+            margin-top: -10px;
+        }
+
+        a, .project-link { color: var(--cyan); }
+
+        .back-link {
+            align-self: center;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.85em;
+            }
+            
+        .hypothesis-box,
+        .calculator-box,
+        .score-explanation,
+        details,
+        #calc-results {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px dashed var(--line);
+            border-radius: 5px;
+            background: var(--wash);
+        }
+
+        .hypothesis-box { border-left: 3px solid var(--gold); }
+        .calculator-box { border-style: solid; }
+
+        h3, h4 {
+            color: var(--ink);
+            margin: 0 0 8px;
+            text-align: left;
+        }
+
+        .kdi-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 45%;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .field-row label { color: var(--ink); }
+
+        input[type="number"] {
+            font-family: monospace;
+            color: var(--ink);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 6px;
+            width: 100%;
+            background: var(--paper);
+        }
+
+        input:focus,
+        button:focus-visible,
+        summary:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 2px;
+        }
+
+        .field-help {
+            grid-column: 1 / -1;
+            margin-top: -8px;
+            color: var(--muted);
+            font-size: 0.9em;
+        }
+
+        .checkbox-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 7px;
+            color: var(--ink);
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        button {
+            flex: 1 1 120px;
+            font-family: monospace;
+            font-size: 1em;
+            color: var(--cyan);
+            background: transparent;
+            border: 1px solid var(--cyan);
+            border-radius: 4px;
+            padding: 8px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        button:hover {
+            color: var(--paper);
+            background: var(--cyan);
+        }
+
+        button.secondary {
+            color: var(--muted);
+            border-color: var(--line);
+        }
+
+        button.secondary:hover {
+            color: var(--ink);
+            background: #eeeeee;
+        }
+
+        #calc-results {
+            display: none;
+            width: 100%;
+            border-style: solid;
+        }
+
+        .score-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            color: var(--ink);
+        }
+
+        .score-number {
+            color: var(--cyan);
+            font-size: 2.2em;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .score-track {
+            position: relative;
+            height: 13px;
+            margin: 17px 0 5px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: linear-gradient(90deg, var(--gold), #eeeeee 50%, var(--cyan));
+        }
+
+        .score-marker {
+            position: absolute;
+            top: -6px;
+            width: 3px;
+            height: 23px;
+            background: var(--ink);
+            transform: translateX(-50%);
+        }
+
+        .track-labels {
+            display: flex;
+            justify-content: space-between;
+            color: var(--ink);
+            font-size: 0.86em;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 13px;
+        }
+
+        .component-result {
+            padding: 8px;
+            border: 1px solid var(--line);
+            border-radius: 3px;
+            background: var(--paper);
+            text-align: left;
+        }
+
+        .component-result:last-child:nth-child(odd) { grid-column: 1 / -1; }
+        .component-score { color: var(--ink); font-size: 1.15em; }
+
+        .score-explanation {
+            display: grid;
+            grid-template-columns: 72px 1fr;
+            gap: 7px 12px;
+        }
+
+        .score-explanation b { color: var(--ink); }
+
+        .index-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .index-list li { margin-bottom: 9px; }
+
+        details { width: 100%; }
+        summary {
+            cursor: pointer;
+            color: var(--ink);
+            font-weight: bold;
+        }
+
+        .formula {
+            overflow-x: auto;
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 3px solid var(--cyan);
+            background: var(--paper);
+            color: var(--ink);
+            white-space: nowrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 0.92em;
+        }
+
+        th, td {
+            border-bottom: 1px solid var(--line);
+            padding: 6px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th { color: var(--ink); }
+        .small-note { font-size: 0.9em; }
+        .error { color: var(--error); }
+
+        @media (max-width: 520px) {
+            .linked-page { margin-top: 12px; padding: 11px; }
+            .field-row { grid-template-columns: 1fr; gap: 3px; }
+            .field-help { grid-column: 1; margin-top: 0; }
+            .checkbox-row { justify-content: flex-start; }
+            .component-grid { grid-template-columns: 1fr; }
+            .component-result:last-child:nth-child(odd) { grid-column: auto; }
+            .score-explanation { grid-template-columns: 58px 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <section>
+        <div class="linked-page">
+            <h2 class="linked-page-header">Krafft–Douthwaite Index Calculator</h2>
+
+            <div class="linked-page-body">
+                <b><u>Hypothesis:</u></b> Every student in the degree program occupies a measurable position somewhere between Veit Krafft (MF 27') and James Douthwaite (MF 27'). Krafft is assigned 0 KDI and Douthwaite is assigned 100 KDI. Scores below 0 or above 100 identify a remarkable specimen of forestry brevado.
+
+                <div class="hypothesis-box">
+                    <b>Why these measurements?</b><br>
+                    The KDI is like a stand level metric you would get from a forest inventory. Beverage preference represents compositional ecology; hair and beard length provide follicular mensuration; vocalization measures acoustic dominance; rain tolerance represents climatic adaptation; and pant pockets represent field-equipment stocking. Each trait is normalized against the two reference individuals before the five scores are combined.
+                </div>
+
+                <div class="calculator-box">
+                    <h3>Calculate a KDI score</h3>
+                    Enter observations for one respondent. Beverage counts should cover the same 30-day period used for the reference values.
+
+                    <form id="kdi-form" class="kdi-form">
+                        <div class="field-row">
+                            <label for="beers">Beers consumed:</label>
+                            <input type="number" id="beers" min="0" step="1" value="6" required>
+                        </div>
+
+                        <div class="field-row">
+                            <label for="ciders">Ciders consumed:</label>
+                            <input type="number" id="ciders" min="0" step="1" value="8" required>
+                            <span class="field-help">Count both over 30 days. Zero is allowed.</span>
+                        </div>
+
+                        <div class="field-row">
+                            <label for="hair">Vertical head-hair length (cm):</label>
+                            <input type="number" id="hair" min="0" step="any" value="8" required>
+                        </div>
+
+                        <div class="field-row">
+                            <label for="beard">Beard length under chin (cm):</label>
+                            <input type="number" id="beard" min="0" step="any" value="3" required>
+                            <span class="field-help">Measure the beard pulled outward. Mustache length is not used.</span>
+                        </div>
+
+                        <div class="field-row">
+                            <label for="vocal">Peak vocalization (dB):</label>
+                            <input type="number" id="vocal" min="0" max="200" step="any" value="90" required>
+                            <span class="field-help">Use the median peak from three natural laughs or equivalent hardy vocalizations measured one meter away.</span>
+                        </div>
+
+                        <div class="field-row">
+                            <label for="rain">Minutes before adding rain gear:</label>
+                            <input type="number" id="rain" min="0" max="120" step="any" value="25" required>
+                        </div>
+
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="rain-never">
+                            <label for="rain-never">No rain gear within 120 minutes</label>
+                        </div>
+
+                        <div class="field-row">
+                            <label for="pockets">Functional pants pockets:</label>
+                            <input type="number" id="pockets" min="0" step="1" value="6" required>
+                            <span class="field-help">A pocket must be capable of holding a field notebook or diameter tape.</span>
+                        </div>
+
+                        <div class="button-row">
+                            <button type="submit">Calculate KDI</button>
+                            <button type="button" class="secondary" id="load-krafft">Load Krafft</button>
+                            <button type="button" class="secondary" id="load-douthwaite">Load Douthwaite</button>
+                        </div>
+                    </form>
+
+                    <div id="calc-results" role="status" aria-live="polite"></div>
+                </div>
+
+                <h3>Understanding the score</h3>
+                <div class="score-explanation">
+                    <b>&lt; 0</b><span>More Krafftian than the Krafft reference type.</span>
+                    <b>0</b><span>Canonical Krafft. (Veit is this you... ?)</span>
+                    <b>1–49</b><span>Krafft-dominant, with increasing Douthwaite-ed characteristics.</span>
+                    <b>50</b><span>The theoretical hybrid specimen: equally positioned between both references types.</span>
+                    <b>51–99</b><span>Douthwaite-dominant, with some residual Krafft characteristics.</span>
+                    <b>100</b><span>Canonical Douthwaite.</span>
+                    <b>&gt; 100</b><span>More Douthwaitian than the Douthwaite reference type.</span>
+                </div>
+
+                <h3>What the component scores mean</h3>
+                <ol class="index-list">
+                    <li><b>Beer–Cider Index:</b> compares the log ratio of beers to ciders. Higher component scores indicate a more cider-dominant, Douthwaite-like beverage assemblage. A 0.5 pseudocount allows zero-beer observations without dividing by zero.</li>
+                    <li><b>Follicular Hypotenuse Index:</b> treats vertical head hair and beard length as the perpendicular legs of a right triangle. Its hypotenuse is a deliberately excessive measurement of total follicular extent.</li>
+                    <li><b>Vocalization Dominance Index:</b> converts decibels to relative acoustic intensity before normalization. Higher values therefore increase rapidly as vocalization approaches Douthwaite levels.</li>
+                    <li><b>Precipitation Tolerance Index:</b> measures time before rain gear is added. “Never” is represented by the fixed 120-minute observation limit so that it remains numerically measurable.</li>
+                    <li><b>Pant Stocking Index:</b> counts functional pockets. Because Krafft has more pockets, high pocket counts move this component toward the Krafft end of the axis.</li>
+                </ol>
+
+                <details>
+                    <summary>Show the reference values and mathematical logic</summary>
+
+                    <h4 style="margin-top: 15px;">Reference observations</h4>
+                    <table>
+                        <thead>
+                            <tr><th>Component</th><th>Krafft: 0</th><th>Douthwaite: 100</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Beer / cider</td><td>12 / 3 per 30 days</td><td>0 / 18 per 30 days</td></tr>
+                            <tr><td>Hair / beard</td><td>0.9 / 0.1 cm</td><td>24.96 / 11.43 cm</td></tr>
+                            <tr><td>Vocalization</td><td>70 dB</td><td>110 dB</td></tr>
+                            <tr><td>Rain tolerance</td><td>2 min</td><td>120 min observation limit</td></tr>
+                            <tr><td>Functional pockets</td><td>8</td><td>4</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Step 1: transform each measurement</h4>
+                    <div class="formula">R = ln[(beers + 0.5) / (ciders + 0.5)]</div>
+                    <div class="formula">H = √(hair² + beard²)</div>
+                    <div class="formula">L* = 10<sup>(dB − 70) / 10</sup></div>
+                    <div class="formula">R<sub>P</sub> = ln[1 + min(rain minutes, 120)]</div>
+                    <div class="formula">P = number of functional pockets</div>
+
+                    <h4>Step 2: normalize against the buddies</h4>
+                    For transformed value <i>x</i>, Krafft reference <i>x<sub>K</sub></i>, and Douthwaite reference <i>x<sub>D</sub></i>:
+                    <div class="formula">z = (x − x<sub>K</sub>) / (x<sub>D</sub> − x<sub>K</sub>)</div>
+                    This gives Krafft <i>z</i> = 0 and Douthwaite <i>z</i> = 1 for every component. A negative denominator is acceptable and automatically handles traits such as pocket count, where Krafft has the larger raw value.
+
+                    <h4>Step 3: construct the composite</h4>
+                    Let the five normalized component values be <i>z<sub>i</sub></i>. Their equal-weight mean and profile variance are:
+                    <div class="formula">z̄ = (z<sub>1</sub> + z<sub>2</sub> + z<sub>3</sub> + z<sub>4</sub> + z<sub>5</sub>) / 5</div>
+                    <div class="formula">V = Σ(z<sub>i</sub> − z̄)² / 5</div>
+
+                    <h4>Step 4: apply Ashton’s Constant</h4>
+                    By ceremonial convention, Ashton’s Constant is:
+                    <div class="formula">𝒜 = π / e ≈ 1.155727</div>
+                    The final equation is:
+                    <div class="formula">KDI = 100 × [z̄ + (𝒜 / 10)(2z̄ − 1)(V / (1 + V))]</div>
+                    The second term is the <b>Ashton Polarization Correction</b>. It slightly pushes a heterogeneous collection of traits toward whichever reference already dominates the mean. It vanishes for both reference individuals, ensuring their final scores remain exactly 0 and 100.
+                </details>
+            </div>
+           <a href="index.html" class="project-link back-link">Back</a>
+        </div>       
+    </section>
+
+    <footer class="footer" id="footer">
+        <p>2026, San Francisco, California</p>
+    </footer>
+
+    <script>
+        "use strict";
+
+        const REFERENCE = Object.freeze({
+            krafft: Object.freeze({ beers: 12, ciders: 3, hair: 0.9, beard: 0.1, vocal: 70, rain: 2, pockets: 8 }),
+            douthwaite: Object.freeze({ beers: 0, ciders: 18, hair: 7.8 * 3.2, beard: 4.5 * 2.54, vocal: 110, rain: 120, pockets: 4 })
+        });
+
+        const ASHTONS_CONSTANT = Math.PI / Math.E;
+        const RAIN_LIMIT = 120;
+
+        const byId = (id) => document.getElementById(id);
+        const logBeerCider = (beers, ciders) => Math.log((beers + 0.5) / (ciders + 0.5));
+        const follicularHypotenuse = (hair, beard) => Math.hypot(hair, beard);
+        const acousticIntensity = (decibels) => 10 ** ((decibels - 70) / 10);
+        const rainTransform = (minutes) => Math.log1p(Math.min(minutes, RAIN_LIMIT));
+        const normalize = (value, krafft, douthwaite) => (value - krafft) / (douthwaite - krafft);
+
+        function transform(person) {
+            return {
+                beverage: logBeerCider(person.beers, person.ciders),
+                follicular: follicularHypotenuse(person.hair, person.beard),
+                vocalization: acousticIntensity(person.vocal),
+                precipitation: rainTransform(person.rain),
+                pockets: person.pockets
+            };
+        }
+
+        const K_TRANSFORMED = transform(REFERENCE.krafft);
+        const D_TRANSFORMED = transform(REFERENCE.douthwaite);
+
+        function readInputs() {
+            return {
+                beers: Number(byId("beers").value),
+                ciders: Number(byId("ciders").value),
+                hair: Number(byId("hair").value),
+                beard: Number(byId("beard").value),
+                vocal: Number(byId("vocal").value),
+                rain: byId("rain-never").checked ? RAIN_LIMIT : Number(byId("rain").value),
+                pockets: Number(byId("pockets").value)
+            };
+        }
+
+        function validate(person) {
+            const entries = Object.entries(person);
+            if (entries.some(([, value]) => !Number.isFinite(value))) return "Complete every field with a numeric value.";
+            if (entries.some(([, value]) => value < 0)) return "Measurements and counts cannot be negative.";
+            if (person.vocal > 200) return "Enter a vocalization no greater than 200 dB.";
+            if (person.rain > RAIN_LIMIT) return `Rain tolerance cannot exceed the ${RAIN_LIMIT}-minute observation limit.`;
+            return "";
+        }
+
+        function calculate(person) {
+            const transformed = transform(person);
+            const z = {
+                beverage: normalize(transformed.beverage, K_TRANSFORMED.beverage, D_TRANSFORMED.beverage),
+                follicular: normalize(transformed.follicular, K_TRANSFORMED.follicular, D_TRANSFORMED.follicular),
+                vocalization: normalize(transformed.vocalization, K_TRANSFORMED.vocalization, D_TRANSFORMED.vocalization),
+                precipitation: normalize(transformed.precipitation, K_TRANSFORMED.precipitation, D_TRANSFORMED.precipitation),
+                pockets: normalize(transformed.pockets, K_TRANSFORMED.pockets, D_TRANSFORMED.pockets)
+            };
+
+            const values = Object.values(z);
+            const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+            const variance = values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length;
+            const correction = (ASHTONS_CONSTANT / 10) * (2 * mean - 1) * (variance / (1 + variance));
+            return { z, mean, variance, correction, score: 100 * (mean + correction) };
+        }
+
+        function scoreDescription(score) {
+            if (score < 0) return "More Krafftian than Krafft — the lower boundary has been exceeded.";
+            if (Math.abs(score) < 0.005) return "Canonical Krafft.";
+            if (score < 40) return "Strongly Krafft-dominant.";
+            if (score < 49.5) return "Krafft-leaning mixed stand.";
+            if (score <= 50.5) return "The theoretical Krafft–Douthwaite hybrid stand.";
+            if (score < 60) return "Douthwaite-leaning mixed stand.";
+            if (score < 99.995) return "Strongly Douthwaite-dominant.";
+            if (score <= 100.005) return "Canonical Douthwaite.";
+            return "More Douthwaitian than Douthwaite — the upper boundary has been exceeded.";
+        }
+
+        function formatComponent(label, value) {
+            return `<div class="component-result"><b>${label}</b><br><span class="component-score">${(value * 100).toFixed(1)}</span> component points</div>`;
+        }
+
+        function renderResults(result) {
+            const displayScore = Math.abs(result.score) < 0.005 ? 0 : result.score;
+            const markerPosition = Math.max(0, Math.min(100, displayScore));
+            const results = byId("calc-results");
+            results.style.display = "block";
+            results.innerHTML = `
+                <div class="score-heading">
+                    <b>Composite KDI</b>
+                    <span class="score-number">${displayScore.toFixed(1)}</span>
+                </div>
+                <div>${scoreDescription(displayScore)}</div>
+                <div class="score-track" aria-hidden="true"><span class="score-marker" style="left: ${markerPosition}%"></span></div>
+                <div class="track-labels"><span>Krafft · 0</span><span>Douthwaite · 100</span></div>
+                <div class="component-grid">
+                    ${formatComponent("Beer–Cider", result.z.beverage)}
+                    ${formatComponent("Follicular Hypotenuse", result.z.follicular)}
+                    ${formatComponent("Vocalization Dominance", result.z.vocalization)}
+                    ${formatComponent("Precipitation Tolerance", result.z.precipitation)}
+                    ${formatComponent("Pant Stocking", result.z.pockets)}
+                </div>
+                <hr style="border: 0; border-top: 1px dashed #ddd; margin: 12px 0 8px;">
+                <b>Equal-weight base score:</b> ${(result.mean * 100).toFixed(2)}<br>
+                <b>Ashton Polarization Correction:</b> ${(result.correction * 100).toFixed(2)} points<br>
+                <b>Profile variance:</b> ${result.variance.toFixed(4)}
+            `;
+        }
+
+        function setReference(person, rainNever) {
+            Object.entries(person).forEach(([key, value]) => {
+                const element = byId(key);
+                if (element) element.value = Number.isInteger(value) ? value : Number(value.toFixed(2));
+            });
+            byId("rain-never").checked = rainNever;
+            byId("rain").disabled = rainNever;
+            renderResults(calculate({ ...person }));
+        }
+
+        byId("kdi-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const person = readInputs();
+            const error = validate(person);
+            if (error) {
+                const results = byId("calc-results");
+                results.style.display = "block";
+                results.innerHTML = `<b class="error">Error:</b> ${error}`;
+                return;
+            }
+            renderResults(calculate(person));
+        });
+
+        byId("rain-never").addEventListener("change", (event) => {
+            byId("rain").disabled = event.target.checked;
+            if (event.target.checked) byId("rain").value = RAIN_LIMIT;
+        });
+
+        byId("load-krafft").addEventListener("click", () => setReference(REFERENCE.krafft, false));
+        byId("load-douthwaite").addEventListener("click", () => setReference(REFERENCE.douthwaite, true));
+    </script>
+</body>
+</html>
